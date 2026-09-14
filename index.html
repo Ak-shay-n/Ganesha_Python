@@ -1,84 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Ganesha Metallic Gold Clean Animation</title>
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    >
+
+    <title>Ganesha</title>
+
 
     <style>
 
         * {
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
+
 
         html,
         body {
-            margin: 0;
+
             width: 100%;
             height: 100%;
+
+            margin: 0;
+            padding: 0;
+
             background: #181b22;
+
             overflow: hidden;
         }
 
+
         body {
+
             display: flex;
+
             justify-content: center;
             align-items: center;
-            font-family: Arial, sans-serif;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
         }
 
+
+        /* =========================
+           MAIN CONTAINER
+        ========================= */
+
         .container {
+
             width: 100%;
             height: 100vh;
+            height: 100dvh;
 
             display: flex;
+
             flex-direction: column;
 
             justify-content: center;
             align-items: center;
+
+            position: relative;
         }
+
+
+        /* =========================
+           CANVAS
+        ========================= */
 
         canvas {
-            width: 850px;
-            height: 850px;
-
-            max-width: 95vw;
-            max-height: 85vh;
 
             display: block;
+
+            width: min(850px, 96vw);
+
+            height: min(850px, 88vh);
+
+            max-width: 96vw;
+            max-height: 88dvh;
+
+            object-fit: contain;
         }
 
-        button {
-            margin-top: 5px;
 
-            padding: 11px 28px;
+        /* =========================
+           REPLAY BUTTON
+        ========================= */
 
-            border: none;
-            border-radius: 8px;
+        .replay {
 
-            background: #F5C842;
-            color: white;
+            position: absolute;
 
-            font-size: 15px;
+            bottom: 28px;
+
+            left: 50%;
+
+            transform:
+                translateX(-50%);
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 9px;
+
+            padding: 11px 22px;
+
+            border: 1px solid
+                rgba(245, 200, 66, 0.45);
+
+            border-radius: 999px;
+
+            background:
+                rgba(245, 200, 66, 0.10);
+
+            color: #F5C842;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            letter-spacing: 0.3px;
 
             cursor: pointer;
 
-            transition: 0.2s;
+            backdrop-filter: blur(10px);
+
+            -webkit-backdrop-filter:
+                blur(10px);
+
+            box-shadow:
+                0 0 20px
+                rgba(245, 200, 66, 0.08);
+
+            transition:
+                background 0.25s ease,
+                border 0.25s ease,
+                box-shadow 0.25s ease,
+                transform 0.2s ease;
         }
 
-        button:hover {
-            background: #D49B24;
-            transform: scale(1.03);
+
+        .replay-icon {
+
+            font-size: 17px;
+
+            line-height: 1;
+
+            transition:
+                transform 0.5s ease;
         }
 
-        #status {
-            margin-top: 8px;
 
-            color: #aaa;
+        .replay:hover {
 
-            font-size: 13px;
+            background:
+                rgba(245, 200, 66, 0.18);
+
+            border-color:
+                rgba(245, 200, 66, 0.75);
+
+            box-shadow:
+                0 0 25px
+                rgba(245, 200, 66, 0.16);
+
+            transform:
+                translateX(-50%)
+                translateY(-2px);
         }
+
+
+        .replay:hover
+        .replay-icon {
+
+            transform:
+                rotate(180deg);
+        }
+
+
+        .replay:active {
+
+            transform:
+                translateX(-50%)
+                scale(0.96);
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 600px) {
+
+            canvas {
+
+                /*
+                    Give the drawing much more
+                    usable space on mobile.
+                */
+
+                width: 110vw;
+
+                height: 82dvh;
+
+                max-width: none;
+                max-height: none;
+            }
+
+
+            .replay {
+
+                bottom: 22px;
+
+                padding:
+                    12px 21px;
+
+                font-size: 14px;
+            }
+        }
+
+
+        /* =========================
+           VERY SMALL PHONES
+        ========================= */
+
+        @media (max-height: 650px) {
+
+            canvas {
+
+                height: 78dvh;
+            }
+
+
+            .replay {
+
+                bottom: 14px;
+            }
+        }
+
 
     </style>
 
@@ -87,7 +254,9 @@
 
 <body>
 
+
 <div class="container">
+
 
     <canvas
         id="canvas"
@@ -95,21 +264,37 @@
         height="850">
     </canvas>
 
-    <button onclick="startAnimation()">
-        Replay Animation
+
+    <button
+        class="replay"
+        onclick="startAnimation()">
+
+        <span class="replay-icon">↻</span>
+
+        <span>Replay</span>
+
     </button>
 
-    <div id="status">
-        Loading...
-    </div>
 
 </div>
 
 
-<script src="https://docs.opencv.org/4.x/opencv.js"></script>
+
+<!-- =========================
+     OPENCV
+========================= -->
+
+<script
+    src="https://docs.opencv.org/4.x/opencv.js">
+</script>
+
 
 
 <script>
+
+/* ==============================
+   CANVAS
+================================ */
 
 const canvas =
     document.getElementById("canvas");
@@ -122,15 +307,18 @@ const ctx =
    COLORS
 ================================ */
 
-const bgColor = "#181b22";
+const bgColor =
+    "#181b22";
 
-const goldStroke = "#D49B24";
+const goldStroke =
+    "#D49B24";
 
-const goldFill = "#F5C842";
+const goldFill =
+    "#F5C842";
 
 
 /* ==============================
-   SAME VALUES AS PYTHON
+   PYTHON VALUES
 ================================ */
 
 const targetWidth = 650;
@@ -146,7 +334,7 @@ let contoursData = [];
 
 
 /* ==============================
-   ANIMATION VARIABLES
+   ANIMATION
 ================================ */
 
 let contourIndex = 0;
@@ -157,28 +345,59 @@ let animationRunning = false;
 
 
 /*
-    THIS CONTROLS THE SPEED.
+    DRAWING SPEED
 
-    Smaller number = slower.
-
-    Try:
-
-    1  = VERY slow
-    2  = slow
-    4  = medium
-    8  = fast
+    1 = very slow
+    2 = slow
+    3 = smooth
+    4 = faster
 */
 
 const pointsPerFrame = 2;
 
 
 /* ==============================
-   BACKGROUND
+   RESPONSIVE SCALE
+================================ */
+
+function getDrawingScale() {
+
+    const width =
+        window.innerWidth;
+
+    /*
+        Desktop:
+        almost exactly Python size.
+
+        Mobile:
+        enlarge Ganesha so it doesn't
+        look tiny.
+    */
+
+    if (width <= 600) {
+
+        return 1.28;
+
+    }
+
+    if (width <= 900) {
+
+        return 1.10;
+
+    }
+
+    return 1.0;
+}
+
+
+/* ==============================
+   CLEAR CANVAS
 ================================ */
 
 function clearCanvas() {
 
-    ctx.fillStyle = bgColor;
+    ctx.fillStyle =
+        bgColor;
 
     ctx.fillRect(
         0,
@@ -196,33 +415,31 @@ clearCanvas();
    LOAD IMAGE
 ================================ */
 
-const image = new Image();
+const image =
+    new Image();
 
 
 image.onload = function () {
 
     /*
-        EXACT SAME CALCULATION
-        AS YOUR PYTHON CODE.
+        EXACT SAME IMAGE
+        RESIZE LOGIC AS PYTHON
     */
 
     targetHeight =
         Math.round(
-            (image.height / image.width) *
-            targetWidth
+            (image.height / image.width)
+            * targetWidth
         );
 
-
-    /*
-        Temporary canvas
-        for OpenCV.
-    */
 
     const tempCanvas =
         document.createElement("canvas");
 
+
     tempCanvas.width =
         targetWidth;
+
 
     tempCanvas.height =
         targetHeight;
@@ -246,14 +463,10 @@ image.onload = function () {
 
 
 /* ==============================
-   PROCESS IMAGE
+   OPENCV PROCESSING
 ================================ */
 
 function processImage(tempCanvas) {
-
-    document.getElementById("status").innerText =
-        "Processing Ganesha...";
-
 
     const src =
         cv.imread(tempCanvas);
@@ -268,14 +481,9 @@ function processImage(tempCanvas) {
 
 
     /*
-
         Python:
 
-        gray = cv2.cvtColor(
-            img_resized,
-            cv2.COLOR_BGR2GRAY
-        )
-
+        cv2.cvtColor(...)
     */
 
     cv.cvtColor(
@@ -286,16 +494,14 @@ function processImage(tempCanvas) {
 
 
     /*
-
         Python:
 
-        _, thresh = cv2.threshold(
+        cv2.threshold(
             gray,
             70,
             255,
             cv2.THRESH_BINARY
         )
-
     */
 
     cv.threshold(
@@ -308,7 +514,6 @@ function processImage(tempCanvas) {
 
 
     /*
-
         Python:
 
         cv2.findContours(
@@ -316,7 +521,6 @@ function processImage(tempCanvas) {
             cv2.RETR_TREE,
             cv2.CHAIN_APPROX_NONE
         )
-
     */
 
     const contours =
@@ -340,9 +544,9 @@ function processImage(tempCanvas) {
         hierarchy.data32S;
 
 
-    /* ==============================
-       CONVERT CONTOURS
-    ================================= */
+    /* ==========================
+       EXTRACT CONTOURS
+    ========================== */
 
     for (
         let i = 0;
@@ -359,7 +563,7 @@ function processImage(tempCanvas) {
 
 
         /*
-            SAME FILTER AS PYTHON
+            EXACT PYTHON FILTER
         */
 
         if (
@@ -402,7 +606,7 @@ function processImage(tempCanvas) {
 
 
         /* ==========================
-           EXTRACT POINTS
+           POINTS
         ========================== */
 
         const points = [];
@@ -420,10 +624,11 @@ function processImage(tempCanvas) {
 
             points.push({
 
-                x: data[j * 2],
+                x:
+                    data[j * 2],
 
-                y: data[j * 2 + 1]
-
+                y:
+                    data[j * 2 + 1]
             });
         }
 
@@ -433,13 +638,16 @@ function processImage(tempCanvas) {
             points: points,
 
             depth: depth
-
         });
 
 
         contour.delete();
     }
 
+
+    /* ==========================
+       CLEAN OPENCV MEMORY
+    ========================== */
 
     src.delete();
 
@@ -452,12 +660,8 @@ function processImage(tempCanvas) {
     hierarchy.delete();
 
 
-    document.getElementById("status").innerText =
-        "Ready";
-
-
     /*
-        START AUTOMATICALLY
+        Start automatically.
     */
 
     setTimeout(
@@ -468,48 +672,10 @@ function processImage(tempCanvas) {
 
 
 /* ==============================
-   CONVERT PYTHON TURTLE
-   COORDINATES → CANVAS
+   PYTHON → CANVAS COORDINATES
 ================================ */
 
 function convertPoint(point) {
-
-    /*
-        Python:
-
-        offset_x = target_width / 2
-        offset_y = target_height / 2
-
-        Turtle:
-
-        x = point.x - offset_x
-
-        y = offset_y - point.y
-
-
-        Canvas starts at TOP-LEFT.
-
-        Therefore:
-
-        canvasX =
-            425 + turtleX
-
-        canvasY =
-            425 - turtleY
-
-
-        Which simplifies to:
-
-        canvasX =
-            425 + point.x - 325
-
-        canvasY =
-            (850-targetHeight)/2 + point.y
-
-        THIS FIXES THE UPSIDE-DOWN
-        PROBLEM.
-    */
-
 
     const offsetX =
         targetWidth / 2;
@@ -519,14 +685,38 @@ function convertPoint(point) {
         targetHeight / 2;
 
 
+    /*
+        Responsive enlargement
+    */
+
+    const scale =
+        getDrawingScale();
+
+
+    /*
+        Python Turtle:
+
+        x =
+            point.x - offsetX
+
+        y =
+            offsetY - point.y
+
+        Canvas conversion:
+        Y is inverted relative
+        to Turtle.
+    */
+
     const x =
         canvas.width / 2 +
-        (point.x - offsetX);
+        (point.x - offsetX)
+        * scale;
 
 
     const y =
-        canvas.height / 2 -
-        (offsetY - point.y);
+        canvas.height / 2 +
+        (point.y - offsetY)
+        * scale;
 
 
     return {
@@ -537,7 +727,7 @@ function convertPoint(point) {
 
 
 /* ==============================
-   DRAW ONE LINE SEGMENT
+   DRAW SEGMENT
 ================================ */
 
 function drawSegment(
@@ -546,11 +736,15 @@ function drawSegment(
 ) {
 
     const p1 =
-        convertPoint(previousPoint);
+        convertPoint(
+            previousPoint
+        );
 
 
     const p2 =
-        convertPoint(currentPoint);
+        convertPoint(
+            currentPoint
+        );
 
 
     ctx.beginPath();
@@ -568,6 +762,10 @@ function drawSegment(
     );
 
 
+    /*
+        Metallic gold
+    */
+
     ctx.strokeStyle =
         goldStroke;
 
@@ -575,18 +773,38 @@ function drawSegment(
     ctx.lineWidth = 1.5;
 
 
-    ctx.lineCap = "round";
+    ctx.lineCap =
+        "round";
 
 
-    ctx.lineJoin = "round";
+    ctx.lineJoin =
+        "round";
+
+
+    /*
+        Very subtle glow
+    */
+
+    ctx.shadowColor =
+        "rgba(245, 200, 66, 0.18)";
+
+    ctx.shadowBlur = 3;
 
 
     ctx.stroke();
+
+
+    /*
+        Turn glow off so it
+        doesn't affect fills.
+    */
+
+    ctx.shadowBlur = 0;
 }
 
 
 /* ==============================
-   FILL COMPLETED CONTOUR
+   FILL CONTOUR
 ================================ */
 
 function fillContour(contour) {
@@ -595,7 +813,10 @@ function fillContour(contour) {
         contour.points;
 
 
-    if (points.length < 3) {
+    if (
+        points.length < 3
+    ) {
+
         return;
     }
 
@@ -610,7 +831,9 @@ function fillContour(contour) {
     ) {
 
         const p =
-            convertPoint(points[i]);
+            convertPoint(
+                points[i]
+            );
 
 
         if (i === 0) {
@@ -635,25 +858,17 @@ function fillContour(contour) {
 
     /*
         Same hierarchy logic
-        as Python.
+        as your Python code.
     */
 
     if (
         contour.depth % 2 === 1
     ) {
 
-        /*
-            Hole
-        */
-
         ctx.fillStyle =
             bgColor;
 
     } else {
-
-        /*
-            Gold shape
-        */
 
         ctx.fillStyle =
             goldFill;
@@ -671,13 +886,13 @@ function fillContour(contour) {
 function animate() {
 
     if (!animationRunning) {
+
         return;
     }
 
 
     /*
-        Have we finished
-        all contours?
+        Finished all contours
     */
 
     if (
@@ -685,19 +900,17 @@ function animate() {
         contoursData.length
     ) {
 
-        animationRunning = false;
-
-
-        document.getElementById("status").innerText =
-            "Animation complete";
-
+        animationRunning =
+            false;
 
         return;
     }
 
 
     const contour =
-        contoursData[contourIndex];
+        contoursData[
+            contourIndex
+        ];
 
 
     const points =
@@ -705,8 +918,8 @@ function animate() {
 
 
     /*
-        Draw only a FEW points
-        each frame.
+        Draw only a few points
+        per frame.
     */
 
     for (
@@ -715,18 +928,19 @@ function animate() {
         k++
     ) {
 
-        /*
-            First point doesn't have
-            a previous point.
-        */
-
         if (
             pointIndex > 0
         ) {
 
             drawSegment(
-                points[pointIndex - 1],
-                points[pointIndex]
+
+                points[
+                    pointIndex - 1
+                ],
+
+                points[
+                    pointIndex
+                ]
             );
         }
 
@@ -735,7 +949,7 @@ function animate() {
 
 
         /*
-            Finished this contour
+            Finished contour
         */
 
         if (
@@ -744,26 +958,28 @@ function animate() {
         ) {
 
             /*
-                Close the contour
+                Close outline
             */
 
             drawSegment(
-                points[points.length - 1],
+
+                points[
+                    points.length - 1
+                ],
+
                 points[0]
             );
 
 
             /*
-                Fill AFTER drawing
-                the complete outline.
+                Fill AFTER
+                outline is drawn.
             */
 
-            fillContour(contour);
+            fillContour(
+                contour
+            );
 
-
-            /*
-                Move to next contour
-            */
 
             contourIndex++;
 
@@ -774,11 +990,6 @@ function animate() {
         }
     }
 
-
-    /*
-        Continue drawing on next
-        browser frame.
-    */
 
     requestAnimationFrame(
         animate
@@ -810,21 +1021,42 @@ function startAnimation() {
     animationRunning = true;
 
 
-    document.getElementById("status").innerText =
-        "Drawing Ganesha...";
-
-
     requestAnimationFrame(
         animate
     );
 }
 
 
-/* ==============================
-   START
-================================ */
+function waitForOpenCV() {
 
-image.src = "ganesh.jpg";
+    if (
+        typeof cv !== "undefined" &&
+        cv.Mat
+    ) {
+
+        /*
+            OpenCV is ready.
+            NOW load the image.
+        */
+
+        image.src = "ganesh.jpg";
+
+    } else {
+
+        /*
+            Keep checking until
+            OpenCV has loaded.
+        */
+
+        setTimeout(
+            waitForOpenCV,
+            100
+        );
+    }
+}
+
+
+waitForOpenCV();
 
 </script>
 
