@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ganesha Metallic Gold Animation</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #181b22;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        h1 {
+            margin: 0 0 15px;
+            font-size: 24px;
+            text-align: center;
+        }
+        .container {
+            width: min(850px, 95vw);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        canvas {
+            width: min(850px, 95vw);
+            height: auto;
+            background: #181b22;
+            border-radius: 12px;
+            display: block;
+        }
+        button {
+            margin-top: 18px;
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            background: #D49B24;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #F5C842;
+        }
+        #status {
+            margin-top: 10px;
+            font-size: 13px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Ganesha Metallic Gold Clean Animation</h1>
+        <canvas id="canvas" width="850" height="850"></canvas>
+        <button onclick="startAnimation()">Replay Animation</button>
+        <div id="status">Loading...</div>
+    </div>
+    <!-- OpenCV.js -->
+    <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        const bgColor = "#181b22";
+        const goldStroke = "#D49B24";
+        const goldFill = "#F5C842";
+        let contoursData = [];
+        let animationFrame = 0;
+        let animationRunning = false;
+        const targetWidth = 650;
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Wait for OpenCV
+        function waitForOpenCV() {
+            if (typeof cv !== "undefined" && cv.Mat) {
+                document.getElementById("status").innerText =
+                    "OpenCV loaded. Preparing Ganesha...";
+                processImage();
+            } else {
+                setTimeout(waitForOpenCV, 100);
+            }
+        }
+        // Load image
+        function processImage() {
+            const image = new Image();
+            image.onload = function () {
+                // Temporary canvas for OpenCV
+                const tempCanvas = document.createElement("canvas");
+                const aspectRatio = image.height / image.width;
+                const targetHeight =
+                    Math.round(aspectRatio * targetWidth);
+                tempCanvas.width = targetWidth;
+                tempCanvas.height = targetHeight;
+                const tempCtx = tempCanvas.getContext("2d");
+                tempCtx.drawImage(
+                    image,
+                    0,
+                    0,
+                    targetWidth,
+                    targetHeight
+                );
+                // Read image using OpenCV
+                const src = cv.imread(tempCanvas);
+                const resized = new cv.Mat();
+                cv.resize(
+                    src,
+                    resized,
+                    new cv.Size(targetWidth, targetHeight),
+                    0,
+                    0,
+                    cv.INTER_AREA
+                );
+                // Convert to grayscale
+                const gray = new cv.Mat();
+                cv.cvtColor(
+                    resized,
+                    gray,
+                    cv.COLOR_RGBA2GRAY
+                );
+                // Threshold
+                const thresh = new cv.Mat();
+                cv.threshold(
+                    gray,
+                    thresh,
+                    70,
+                    255,
+                    cv.THRESH_BINARY
+                );
+                // Find contours
+                const contours = new cv.MatVector();
+                const hierarchy = new cv.Mat();
+                cv.findContours(
+                    thresh,
+                    contours,
+                    hierarchy,
+                    cv.RETR_TREE,
+                    cv.CHAIN_APPROX_NONE
+                );
+                const hierarchyData = hierarchy.data32S;
+                // Convert contours to JavaScript arrays
+                for (let i = 0; i < contours.size(); i++) {
+                    const contour = contours.get(i);
+                    const area = cv.contourArea(contour);
+                    // Same filtering as Python
+                    if (
+                        area < 15 ||
+                        area > targetWidth * targetHeight * 0.45
+                    ) {
+                        contour.delete();
+                        continue;
+                    }
+                    // Calculate hierarchy depth
+                    let depth = 0;
+                    let parent =
+                        hierarchyData[i * 4 + 3];
+                    while (parent !== -1) {
+                        depth++;
+                        parent =
+                            hierarchyData[parent * 4 + 3];
+                    }
+                    const points = [];
+                    const data = contour.data32S;
+                    for (let j = 0; j < contour.rows; j++) {
+                        points.push({
+                            x: data[j * 2],
+                            y: data[j * 2 + 1]
+                        });
+
+                    }
+                    contoursData.push({
+                        points: points,
+                        depth: depth
+                    });
+                    contour.delete();
+                }
+                src.delete();
+                resized.delete();
+                gray.delete();
+                thresh.delete();
+                contours.delete();
+                hierarchy.delete();
+                document.getElementById("status").innerText =
+                    "Ready";
+                startAnimation();
+            };
+            image.onerror = function () {
+                document.getElementById("status").innerText =
+                    "Error: Could not load ganesh.jpg";
+
+            };
+            image.src = "ganesh.jpg";
+        }
+        // Draw a contour
+        function drawContour(contour) {
+            const points = contour.points;
+            if (!points.length) {
+                return;
+            }
+            const offsetX = targetWidth / 2;
+            const targetHeight =
+                targetWidth *
+                (canvas.height / targetWidth);
+            const offsetY = targetHeight / 2;
+            // Center vertically based on actual image size
+            const imageHeight =
+                Math.max(...points.map(p => p.y));
+            const scale =
+                Math.min(
+                    1,
+                    (canvas.width - 100) / targetWidth
+                );
+            const canvasOffsetX =
+                canvas.width / 2;
+            const canvasOffsetY =
+                canvas.height / 2;
+            ctx.beginPath();
+            for (let i = 0; i < points.length; i++) {
+                const p = points[i];
+                const x =
+                    canvasOffsetX +
+                    (p.x - targetWidth / 2) * scale;
+                const y =
+                    canvasOffsetY +
+                    (p.y - imageHeight / 2) * scale;
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.closePath();
+            // Same depth logic as Python
+            if (contour.depth % 2 === 1) {
+                ctx.strokeStyle = goldStroke;
+                ctx.fillStyle = bgColor;
+            } else {
+                ctx.strokeStyle = goldStroke;
+                ctx.fillStyle = goldFill;
+            }
+            ctx.lineWidth = 1.5;
+            ctx.fill();
+            ctx.stroke();
+        }
+        // Animation
+        function animate() {
+            if (!animationRunning) {
+                return;
+            }
+            if (animationFrame >= contoursData.length) {
+                animationRunning = false;
+                document.getElementById("status").innerText =
+                    "Animation complete";
+
+                return;
+            }
+            drawContour(
+                contoursData[animationFrame]
+            );
+            animationFrame++;
+            requestAnimationFrame(animate);
+        }
+        // Start/restart animation
+        function startAnimation() {
+            if (!contoursData.length) {
+                return;
+            }
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+            animationFrame = 0;
+            animationRunning = true;
+            document.getElementById("status").innerText =
+                "Drawing Ganesha...";
+            requestAnimationFrame(animate);
+        }
+        waitForOpenCV();
+    </script>
+</body>
+</html>
